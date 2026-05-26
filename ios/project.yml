@@ -1,0 +1,28 @@
+name: PilotLog
+options:
+  bundleIdPrefix: com.pilotlog
+  deploymentTarget:
+    iOS: "17.0"
+  xcodeVersion: "16.0"
+  generateEmptyDirectories: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    DEVELOPMENT_TEAM: "GB43MTNLFV"
+
+targets:
+  PilotLog:
+    type: application
+    platform: iOS
+    sources:
+      - PilotLog
+    settings:
+      base:
+        INFOPLIST_FILE: PilotLog/Info.plist
+        PRODUCT_BUNDLE_IDENTIFIER: com.pilotlog.app
+        MARKETING_VERSION: "1.0.0"
+        CURRENT_PROJECT_VERSION: "1"
+        GENERATE_INFOPLIST_FILE: false
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        SWIFT_EMIT_LOC_STRINGS: "YES"

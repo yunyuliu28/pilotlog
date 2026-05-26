@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# iOS
+ios/build/
+ios/PilotLog.xcodeproj/xcuserdata/
+ios/PilotLog.xcodeproj/project.xcworkspace/xcuserdata/
+*.xcuserstate
+DerivedData/
+
+# Misc
+.DS_Store
+*.swp
+.env
+.env.local
