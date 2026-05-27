@@ -122,31 +122,34 @@ struct LogbookView: View {
                             }
                         }
 
+                        // Flight count + export
+                        HStack {
+                            Text("\(filtered.count) flight\(filtered.count == 1 ? "" : "s")")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                            Menu {
+                                Button {
+                                    exportFile { ExportService.csvFileURL(from: $0) }
+                                } label: {
+                                    Label("Export as CSV", systemImage: "tablecells")
+                                }
+                                Button {
+                                    exportFile { ExportService.pdfFileURL(from: $0) }
+                                } label: {
+                                    Label("Export as PDF", systemImage: "doc.richtext")
+                                }
+                            } label: {
+                                Image(systemName: "square.and.arrow.up")
+                                    .font(.subheadline)
+                            }
+                        }
+                        .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+
                         // Flight rows
                         Section {
-                            HStack {
-                                Text("\(filtered.count) flight\(filtered.count == 1 ? "" : "s")")
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
-                                Spacer()
-                                Menu {
-                                    Button {
-                                        exportFile { ExportService.csvFileURL(from: $0) }
-                                    } label: {
-                                        Label("Export as CSV", systemImage: "tablecells")
-                                    }
-                                    Button {
-                                        exportFile { ExportService.pdfFileURL(from: $0) }
-                                    } label: {
-                                        Label("Export as PDF", systemImage: "doc.richtext")
-                                    }
-                                } label: {
-                                    Image(systemName: "square.and.arrow.up")
-                                        .font(.subheadline)
-                                }
-                            }
-                            .listRowSeparator(.hidden, edges: .top)
-
                             ForEach(filtered) { flight in
                                 NavigationLink {
                                     FlightDetailView(flight: flight)
