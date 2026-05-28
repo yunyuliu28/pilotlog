@@ -68,17 +68,16 @@ struct ContentView: View {
                     .ignoresSafeArea()
 
                 if isSheetCollapsed {
-                    VStack {
-                        Text("Logbook")
-                            .font(.title3.bold())
-                            .foregroundStyle(.secondary)
-                            .padding(.top, 12)
-                        Spacer()
-                    }
+                    Text("Logbook")
+                        .font(.title3.bold())
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
                     LogbookView(isCompact: sheetDetent == .fraction(0.35))
                 }
             }
+            .opacity(isSheetCollapsed ? 0.5 : 1.0)
+            .animation(.easeInOut(duration: 0.2), value: isSheetCollapsed)
             .presentationDetents([.height(60), .fraction(0.35), .large], selection: $sheetDetent)
             .presentationDragIndicator(.visible)
             .presentationBackgroundInteraction(.enabled(upThrough: .fraction(0.35)))

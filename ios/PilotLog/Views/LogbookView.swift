@@ -125,8 +125,9 @@ struct LogbookView: View {
                                         Label("Export as PDF", systemImage: "doc.richtext")
                                     }
                                 } label: {
-                                    Image(systemName: "square.and.arrow.up")
-                                        .font(.subheadline)
+                                    Label("Export", systemImage: "square.and.arrow.up")
+                                        .font(.system(size: 14))
+                                        .foregroundStyle(Color(.systemGray))
                                 }
                             }
                             .padding(.horizontal, 16)
@@ -274,7 +275,7 @@ private struct FilterChip: View {
     var body: some View {
         Button(action: action) {
             Text(label)
-                .font(.caption.bold())
+                .font(.system(size: 14))
                 .padding(.horizontal, 12)
                 .padding(.vertical, 6)
                 .background(isSelected ? .blue : Color(.systemGray5))
