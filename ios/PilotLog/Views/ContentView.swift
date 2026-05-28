@@ -83,6 +83,7 @@ struct ContentView: View {
             .presentationDragIndicator(.visible)
             .presentationBackgroundInteraction(.enabled(upThrough: .fraction(0.35)))
             .interactiveDismissDisabled()
+            .presentationContentInteraction(.scrolls)
             .presentationBackground(Color(.systemGray6))
             .presentationCornerRadius(40)
         }

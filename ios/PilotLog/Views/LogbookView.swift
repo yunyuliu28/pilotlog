@@ -77,82 +77,87 @@ struct LogbookView: View {
                         description: Text("Scan your logbook or tap + to add a flight.")
                     )
                 } else {
-                    List {
+                    VStack(spacing: 0) {
                         if !isCompact {
-                        // Time filter
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 8) {
-                                ForEach(TimeFilter.allCases) { filter in
-                                    FilterChip(
-                                        label: filter.rawValue,
-                                        isSelected: selectedFilter == filter
-                                    ) {
-                                        selectedFilter = filter
-                                    }
-                                }
-                            }
-                        }
-                        .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
-                        .listRowBackground(Color.clear)
-                        .listRowSeparator(.hidden)
+                            Spacer().frame(height: 8)
 
-                        if selectedFilter == .custom {
-                            HStack {
-                                DatePicker("From", selection: $customStartDate, displayedComponents: .date)
-                                    .font(.caption)
-                                DatePicker("To", selection: $customEndDate, displayedComponents: .date)
-                                    .font(.caption)
-                            }
-                        }
-
-                        // Flight count + export
-                        HStack {
-                            Text("\(filtered.count) flight\(filtered.count == 1 ? "" : "s")")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                            Spacer()
-                            Menu {
-                                Button {
-                                    exportFile { ExportService.csvFileURL(from: $0) }
-                                } label: {
-                                    Label("Export as CSV", systemImage: "tablecells")
-                                }
-                                Button {
-                                    exportFile { ExportService.pdfFileURL(from: $0) }
-                                } label: {
-                                    Label("Export as PDF", systemImage: "doc.richtext")
-                                }
-                            } label: {
-                                Image(systemName: "square.and.arrow.up")
-                                    .font(.subheadline)
-                            }
-                        }
-                        .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
-                        .listRowBackground(Color.clear)
-                        .listRowSeparator(.hidden)
-                        } // end if !isCompact
-
-                        // Search bar
-                        if showingSearch {
-                            Section {
+                            // Time filter
+                            ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 8) {
-                                    Image(systemName: "magnifyingglass")
-                                        .foregroundStyle(.secondary)
-                                    TextField("Search flights", text: $searchText)
-                                        .textFieldStyle(.plain)
-                                    if !searchText.isEmpty {
-                                        Button { searchText = "" } label: {
-                                            Image(systemName: "xmark.circle.fill")
-                                                .foregroundStyle(.secondary)
+                                    ForEach(TimeFilter.allCases) { filter in
+                                        FilterChip(
+                                            label: filter.rawValue,
+                                            isSelected: selectedFilter == filter
+                                        ) {
+                                            selectedFilter = filter
                                         }
                                     }
                                 }
-                                .font(.system(size: 16))
+                                .padding(.horizontal, 16)
                             }
+
+                            if selectedFilter == .custom {
+                                HStack {
+                                    DatePicker("From", selection: $customStartDate, displayedComponents: .date)
+                                        .font(.caption)
+                                    DatePicker("To", selection: $customEndDate, displayedComponents: .date)
+                                        .font(.caption)
+                                }
+                                .padding(.horizontal, 16)
+                                .padding(.top, 8)
+                            }
+
+                            // Flight count + export
+                            HStack {
+                                Text("\(filtered.count) flight\(filtered.count == 1 ? "" : "s")")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                                Spacer()
+                                Menu {
+                                    Button {
+                                        exportFile { ExportService.csvFileURL(from: $0) }
+                                    } label: {
+                                        Label("Export as CSV", systemImage: "tablecells")
+                                    }
+                                    Button {
+                                        exportFile { ExportService.pdfFileURL(from: $0) }
+                                    } label: {
+                                        Label("Export as PDF", systemImage: "doc.richtext")
+                                    }
+                                } label: {
+                                    Image(systemName: "square.and.arrow.up")
+                                        .font(.subheadline)
+                                }
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.top, 16)
+                        }
+
+                        // Search bar
+                        if showingSearch {
+                            HStack(spacing: 8) {
+                                Image(systemName: "magnifyingglass")
+                                    .foregroundStyle(.secondary)
+                                TextField("Search flights", text: $searchText)
+                                    .textFieldStyle(.plain)
+                                if !searchText.isEmpty {
+                                    Button { searchText = "" } label: {
+                                        Image(systemName: "xmark.circle.fill")
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+                            }
+                            .font(.system(size: 16))
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            .background(Color(.systemBackground))
+                            .clipShape(Capsule())
+                            .padding(.horizontal, 8)
+                            .padding(.top, 16)
                         }
 
                         // Flight rows
-                        Section {
+                        List {
                             ForEach(filtered) { flight in
                                 ZStack(alignment: .leading) {
                                     NavigationLink(destination: FlightDetailView(flight: flight)) {
@@ -162,15 +167,16 @@ struct LogbookView: View {
 
                                     LogbookRow(flight: flight)
                                 }
+                                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                             }
                             .onDelete(perform: deleteFlights)
                         }
+                        .listStyle(.plain)
+                        .scrollContentBackground(.hidden)
+                        .padding(.top, 16)
                     }
                 }
             }
-            .contentMargins(.top, 12, for: .scrollContent)
-            .listSectionSpacing(12)
-            .scrollContentBackground(.hidden)
             .background(Color(.systemGray6))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
