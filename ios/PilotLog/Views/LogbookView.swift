@@ -320,7 +320,7 @@ private struct LogbookRow: View {
                 HStack(spacing: 6) {
                     if !flight.aircraftType.isEmpty {
                         Text(flight.aircraftType)
-                            .font(.system(size: 14, weight: .bold))
+                            .font(.system(size: 14, weight: .medium))
                             .padding(.horizontal, 5)
                             .padding(.vertical, 1)
                             .background(.blue.opacity(0.15))

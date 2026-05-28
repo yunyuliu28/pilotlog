@@ -35,10 +35,26 @@ struct AddFlightView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
+            VStack(spacing: 0) {
+                // Aircraft category
+                Picker("", selection: $engineCategory) {
+                    Text("Single-Engine Land").tag(0)
+                    Text("Multi-Engine Land").tag(1)
+                }
+                .pickerStyle(.segmented)
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
+                .padding(.bottom, 8)
+                .background(Color(.systemGroupedBackground))
+
+                Form {
                 // Flight info
                 Section("Flight Info") {
-                    DatePicker("Date", selection: $date, displayedComponents: .date)
+                    HStack {
+                        DatePicker("", selection: $date, displayedComponents: .date)
+                            .labelsHidden()
+                        Spacer()
+                    }
                     HStack {
                         TextField("Aircraft Type", text: $aircraftType)
                             .textInputAutocapitalization(.characters)
@@ -46,22 +62,11 @@ struct AddFlightView: View {
                             .textInputAutocapitalization(.characters)
                     }
                     HStack {
-                        TextField("From", text: $departure)
+                        TextField("Departure", text: $departure)
                             .textInputAutocapitalization(.characters)
-                        Image(systemName: "arrow.right")
-                            .foregroundStyle(.secondary)
-                        TextField("To", text: $arrival)
+                        TextField("Destination", text: $arrival)
                             .textInputAutocapitalization(.characters)
                     }
-                }
-
-                // Aircraft category
-                Section("Aircraft Category") {
-                    Picker("Engine", selection: $engineCategory) {
-                        Text("Single-Engine Land").tag(0)
-                        Text("Multi-Engine Land").tag(1)
-                    }
-                    .pickerStyle(.segmented)
                 }
 
                 // Time
@@ -92,6 +97,7 @@ struct AddFlightView: View {
                     TextField("Maneuvers, notes, endorsements...", text: $remarks, axis: .vertical)
                         .lineLimit(3...6)
                 }
+            }
             }
             .navigationTitle("Add Flight")
             .navigationBarTitleDisplayMode(.inline)
