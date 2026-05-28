@@ -14,6 +14,7 @@ enum TimeFilter: String, CaseIterable, Identifiable {
 }
 
 struct LogbookView: View {
+    var isCompact: Bool = false
     @Query(sort: \FlightEntry.date, order: .reverse) private var flights: [FlightEntry]
     @State private var searchText = ""
     @State private var showingAddFlight = false
@@ -21,6 +22,7 @@ struct LogbookView: View {
     @State private var showExportSheet = false
     @State private var exportURL: URL?
     @State private var isExporting = false
+    @State private var showProfile = false
     @State private var selectedFilter: TimeFilter = .all
     @State private var customStartDate = Calendar.current.date(byAdding: .month, value: -1, to: .now)!
     @State private var customEndDate = Date.now
@@ -76,26 +78,7 @@ struct LogbookView: View {
                     )
                 } else {
                     List {
-                        // Search bar (when active)
-                        if showingSearch {
-                            HStack {
-                                Image(systemName: "magnifyingglass")
-                                    .foregroundStyle(.secondary)
-                                TextField("Search flights", text: $searchText)
-                                    .textFieldStyle(.plain)
-                                if !searchText.isEmpty {
-                                    Button { searchText = "" } label: {
-                                        Image(systemName: "xmark.circle.fill")
-                                            .foregroundStyle(.secondary)
-                                    }
-                                }
-                            }
-                            .padding(8)
-                            .background(Color(.systemGray5))
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                            .listRowSeparator(.hidden)
-                        }
-
+                        if !isCompact {
                         // Time filter
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 8) {
@@ -147,13 +130,36 @@ struct LogbookView: View {
                         .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
+                        } // end if !isCompact
+
+                        // Search bar
+                        if showingSearch {
+                            Section {
+                                HStack(spacing: 8) {
+                                    Image(systemName: "magnifyingglass")
+                                        .foregroundStyle(.secondary)
+                                    TextField("Search flights", text: $searchText)
+                                        .textFieldStyle(.plain)
+                                    if !searchText.isEmpty {
+                                        Button { searchText = "" } label: {
+                                            Image(systemName: "xmark.circle.fill")
+                                                .foregroundStyle(.secondary)
+                                        }
+                                    }
+                                }
+                                .font(.system(size: 16))
+                            }
+                        }
 
                         // Flight rows
                         Section {
                             ForEach(filtered) { flight in
-                                NavigationLink {
-                                    FlightDetailView(flight: flight)
-                                } label: {
+                                ZStack(alignment: .leading) {
+                                    NavigationLink(destination: FlightDetailView(flight: flight)) {
+                                        EmptyView()
+                                    }
+                                    .opacity(0)
+
                                     LogbookRow(flight: flight)
                                 }
                             }
@@ -162,15 +168,29 @@ struct LogbookView: View {
                     }
                 }
             }
-            .navigationTitle("Logbook")
+            .contentMargins(.top, 12, for: .scrollContent)
+            .listSectionSpacing(12)
+            .scrollContentBackground(.hidden)
+            .background(Color(.systemGray6))
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button { showProfile = true } label: {
+                        Image(systemName: "person.circle")
+                            .font(.title3)
+                    }
+                }
+                ToolbarItem(placement: .principal) {
+                    Text("Logbook")
+                        .font(.title3.bold())
+                }
                 ToolbarItem(placement: .primaryAction) {
                     HStack(spacing: 16) {
                         Button {
                             withAnimation { showingSearch.toggle() }
                             if !showingSearch { searchText = "" }
                         } label: {
-                            Image(systemName: showingSearch ? "magnifyingglass.circle.fill" : "magnifyingglass")
+                            Image(systemName: "magnifyingglass")
                         }
                         Button {
                             showingAddFlight = true
@@ -198,6 +218,16 @@ struct LogbookView: View {
             }
             .sheet(isPresented: $showingAddFlight) {
                 AddFlightView()
+            }
+            .sheet(isPresented: $showProfile) {
+                NavigationStack {
+                    ProfileView()
+                        .toolbar {
+                            ToolbarItem(placement: .topBarTrailing) {
+                                Button("Done") { showProfile = false }
+                            }
+                        }
+                }
             }
             .sheet(isPresented: $showExportSheet) {
                 if let url = exportURL {
@@ -257,63 +287,70 @@ private struct LogbookRow: View {
         return f
     }()
 
+    private var hours: Int { Int(flight.totalTime) }
+    private var minutes: Int { Int((flight.totalTime - Double(hours)) * 60) }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack {
+        HStack(alignment: .top, spacing: 14) {
+            // Left — total flight time
+            VStack(alignment: .leading, spacing: 0) {
+                Text("\(hours)h")
+                    .font(.system(size: 30, weight: .semibold).monospacedDigit())
+                    .foregroundStyle(.primary.opacity(0.8))
+                Text(minutes > 0 ? "\(minutes)min" : " ")
+                    .font(.system(size: 14))
+                    .foregroundStyle(.secondary)
+                    .padding(.top, -2)
+            }
+            .frame(width: 55, alignment: .leading)
+            .offset(y: -2)
+
+            // Middle — date + aircraft
+            VStack(alignment: .leading, spacing: 6) {
                 Text(Self.dateFmt.string(from: flight.date))
-                    .font(.subheadline.bold().monospacedDigit())
+                    .font(.system(size: 20).monospacedDigit())
 
-                if !flight.aircraftType.isEmpty {
-                    Text(flight.aircraftType)
-                        .font(.caption2.bold())
-                        .padding(.horizontal, 5)
-                        .padding(.vertical, 1)
-                        .background(.blue.opacity(0.15))
-                        .clipShape(Capsule())
+                HStack(spacing: 6) {
+                    if !flight.aircraftType.isEmpty {
+                        Text(flight.aircraftType)
+                            .font(.system(size: 14, weight: .bold))
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 1)
+                            .background(.blue.opacity(0.15))
+                            .clipShape(Capsule())
+                    }
+
+                    if !flight.aircraftIdent.isEmpty {
+                        Text(flight.aircraftIdent)
+                            .font(.system(size: 14))
+                            .foregroundStyle(.secondary)
+                    }
                 }
+            }
 
-                if !flight.aircraftIdent.isEmpty {
-                    Text(flight.aircraftIdent)
-                        .font(.caption)
+            Spacer()
+
+            // Right — departure & destination
+            VStack(alignment: .trailing, spacing: 8) {
+                HStack(spacing: 4) {
+                    Text("from")
+                        .font(.system(size: 14))
                         .foregroundStyle(.secondary)
-                }
-
-                Spacer()
-
-                Text(String(format: "%.1f", flight.totalTime))
-                    .font(.subheadline.bold().monospacedDigit())
-                    .foregroundStyle(.blue)
-            }
-
-            HStack(spacing: 12) {
-                HStack(spacing: 3) {
                     Text(flight.departure)
-                    Image(systemName: "arrow.right")
-                        .font(.caption2)
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundStyle(.primary)
+                }
+                HStack(spacing: 4) {
+                    Text("to")
+                        .font(.system(size: 14))
+                        .foregroundStyle(.secondary)
                     Text(flight.arrival)
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundStyle(.primary)
                 }
-
-                if flight.picTime > 0 {
-                    Label(String(format: "%.1f", flight.picTime), systemImage: "person.fill")
-                }
-                if flight.nightTime > 0 {
-                    Label(String(format: "%.1f", flight.nightTime), systemImage: "moon.fill")
-                }
-                if flight.dayLandings > 0 || flight.nightLandings > 0 {
-                    Label("\(flight.dayLandings + flight.nightLandings)", systemImage: "airplane.arrival")
-                }
-            }
-            .font(.caption)
-            .foregroundStyle(.secondary)
-
-            if !flight.remarks.isEmpty {
-                Text(flight.remarks)
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
-                    .lineLimit(1)
             }
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, 4)
     }
 }
 
