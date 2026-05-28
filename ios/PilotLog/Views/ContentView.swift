@@ -11,6 +11,7 @@ struct ContentView: View {
     @State private var showScanFlow = false
     @AppStorage("hasSeenScanTips") private var hasSeenScanTips = false
     @State private var sheetDetent: PresentationDetent = .fraction(0.35)
+    @State private var showSheet = false
 
     private var isSheetCollapsed: Bool {
         sheetDetent == .height(60)
@@ -62,7 +63,12 @@ struct ContentView: View {
         }
         .animation(.easeInOut(duration: 0.25), value: showTips)
         // Logbook bottom sheet
-        .sheet(isPresented: .constant(true)) {
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
+                showSheet = true
+            }
+        }
+        .sheet(isPresented: $showSheet) {
             ZStack {
                 Color(.systemGray6)
                     .ignoresSafeArea()

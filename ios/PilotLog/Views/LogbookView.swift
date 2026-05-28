@@ -231,7 +231,11 @@ struct LogbookView: View {
                     ProfileView()
                         .toolbar {
                             ToolbarItem(placement: .topBarTrailing) {
-                                Button("Done") { showProfile = false }
+                                Button { showProfile = false } label: {
+                                    Image(systemName: "xmark")
+                                        .font(.system(size: 14, weight: .semibold))
+                                        .foregroundStyle(.secondary)
+                                }
                             }
                         }
                 }

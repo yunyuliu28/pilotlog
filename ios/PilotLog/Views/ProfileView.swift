@@ -22,12 +22,12 @@ struct ProfileView: View {
         NavigationStack {
             List {
                 // Career stats
-                Section("Career Stats") {
+                Section {
                     LazyVGrid(columns: [
                         GridItem(.flexible()),
                         GridItem(.flexible()),
                         GridItem(.flexible()),
-                    ], spacing: 12) {
+                    ], spacing: 0) {
                         ProfileStat(value: String(format: "%.1f", totalTime), label: "Total Hours")
                         ProfileStat(value: String(format: "%.1f", totalPIC), label: "PIC")
                         ProfileStat(value: String(format: "%.1f", totalXC), label: "Cross-Country")
@@ -38,6 +38,8 @@ struct ProfileView: View {
                         ProfileStat(value: "\(uniqueAircraft)", label: "Aircraft")
                         ProfileStat(value: String(format: "%.1f", totalDual), label: "Dual")
                     }
+                } header: {
+                    Text("Career Stats")
                 }
 
                 // AI Scanning
@@ -92,17 +94,19 @@ private struct ProfileStat: View {
     let label: String
 
     var body: some View {
-        VStack(spacing: 2) {
+        VStack(alignment: .leading, spacing: 2) {
             Text(value)
-                .font(.system(size: 16, weight: .bold, design: .rounded))
+                .font(.system(size: 24, weight: .semibold).monospacedDigit())
+                .foregroundStyle(.primary.opacity(0.8))
             Text(label)
                 .font(.caption2)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
         }
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.vertical, 8)
+        .padding(.horizontal, 4)
     }
 }
 
